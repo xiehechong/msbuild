@@ -14,13 +14,11 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Shared;
 using Microsoft.Build.Utilities;
 
-#if (!STANDALONEBUILD)
-using Microsoft.Internal.Performance;
-#endif
 using FrameworkNameVersioning = System.Runtime.Versioning.FrameworkName;
 using SystemProcessorArchitecture = System.Reflection.ProcessorArchitecture;
 using System.Xml.Linq;
 using Microsoft.Build.Tasks.AssemblyDependency;
+using Microsoft.Build.Eventing;
 
 namespace Microsoft.Build.Tasks
 {
@@ -928,9 +926,7 @@ namespace Microsoft.Build.Tasks
         )
         {
             bool success = true;
-#if (!STANDALONEBUILD)
-            using (new CodeMarkerStartEnd(CodeMarkerEvent.perfMSBuildRARLogResultsBegin, CodeMarkerEvent.perfMSBuildRARLogResultsEnd))
-#endif
+            MSBuildEventSource.Log.LogResultsStart();
             {
                 /*
                 PERF NOTE: The Silent flag turns off logging completely from the task side. This means
@@ -1133,6 +1129,8 @@ namespace Microsoft.Build.Tasks
                 }
             }
 #endif
+
+            MSBuildEventSource.Log.LogResultsStop();
 
             return success;
         }
@@ -1918,9 +1916,7 @@ namespace Microsoft.Build.Tasks
         )
         {
             bool success = true;
-#if (!STANDALONEBUILD)
-            using (new CodeMarkerStartEnd(CodeMarkerEvent.perfMSBuildResolveAssemblyReferenceBegin, CodeMarkerEvent.perfMSBuildResolveAssemblyReferenceEnd))
-#endif
+            MSBuildEventSource.Log.ExecuteTaskStart();
             {
                 try
                 {
@@ -2392,6 +2388,7 @@ namespace Microsoft.Build.Tasks
                             }
                         }
                     }
+                    MSBuildEventSource.Log.ExecuteTaskStop();
                     return success && !Log.HasLoggedErrors;
                 }
                 catch (ArgumentException e)
@@ -2407,6 +2404,8 @@ namespace Microsoft.Build.Tasks
                         "ResolveAssemblyReference.InvalidParameter", e.ParamName, e.ActualValue, e.Message);
                 }
             }
+
+            MSBuildEventSource.Log.ExecuteTaskStop();
 
             return success && !Log.HasLoggedErrors;
         }

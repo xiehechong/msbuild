@@ -8,6 +8,9 @@ using Microsoft.Build.Construction;
 using System.Collections.Immutable;
 using Microsoft.Build.Internal;
 using Microsoft.Build.Shared;
+using Microsoft.Build.Utilities;
+using Microsoft.Build.Eventing;
+
 
 namespace Microsoft.Build.Evaluation
 {
@@ -97,6 +100,7 @@ namespace Microsoft.Build.Evaluation
                         }
 
                         string[] includeSplitFilesEscaped;
+                        MSBuildEventSource.Log.SelectItemsStart();
                         using (_lazyEvaluator._evaluationProfiler.TrackGlob(_rootDirectory, glob, excludePatternsForGlobs))
                         {
                             includeSplitFilesEscaped = EngineFileUtilities.GetFileListEscaped(
@@ -105,6 +109,7 @@ namespace Microsoft.Build.Evaluation
                                 excludePatternsForGlobs
                             );
                         }
+                        MSBuildEventSource.Log.SelectItemsStop();
 
                         foreach (string includeSplitFileEscaped in includeSplitFilesEscaped)
                         {

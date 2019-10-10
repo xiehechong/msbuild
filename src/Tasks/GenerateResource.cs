@@ -34,15 +34,13 @@ using System.ComponentModel.Design;
 using System.Runtime.Remoting;
 #endif
 
-#if (!STANDALONEBUILD)
-using Microsoft.Internal.Performance;
-#endif
 using System.Runtime.Versioning;
 
 using Microsoft.Build.Utilities;
 using System.Xml.Linq;
 using Microsoft.Build.Shared.FileSystem;
 using Microsoft.Build.Tasks.ResourceHandling;
+using Microsoft.Build.Eventing;
 
 namespace Microsoft.Build.Tasks
 {
@@ -668,9 +666,7 @@ namespace Microsoft.Build.Tasks
         public override bool Execute()
         {
             bool outOfProcExecutionSucceeded = true;
-#if (!STANDALONEBUILD)
-            using (new CodeMarkerStartEnd(CodeMarkerEvent.perfMSBuildGenerateResourceBegin, CodeMarkerEvent.perfMSBuildGenerateResourceEnd))
-#endif
+            MSBuildEventSource.Log.ExecuteGenerateResourceStart();
             {
                 // If we're extracting ResW files from assemblies (instead of building resources),
                 // our Sources can contain PDB's, pictures, and other non-DLL's.  Prune that list.  
@@ -922,6 +918,8 @@ namespace Microsoft.Build.Tasks
 
                 RecordFilesWritten();
             }
+
+            MSBuildEventSource.Log.ExecuteGenerateResourceStop();
 
             return !Log.HasLoggedErrors && outOfProcExecutionSucceeded;
         }

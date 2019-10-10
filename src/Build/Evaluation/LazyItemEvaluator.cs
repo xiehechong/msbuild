@@ -17,6 +17,7 @@ using Microsoft.Build.Evaluation.Context;
 using Microsoft.Build.Internal;
 using Microsoft.Build.Shared.FileSystem;
 using Microsoft.Build.Utilities;
+using Microsoft.Build.Eventing;
 
 namespace Microsoft.Build.Evaluation
 {
@@ -87,6 +88,7 @@ namespace Microsoft.Build.Evaluation
             {
                 return true;
             }
+            MSBuildEventSource.Log.EvaluateConditionStart(condition);
 
             using (lazyEvaluator._evaluationProfiler.TrackCondition(element.ConditionLocation, condition))
             {
@@ -102,6 +104,7 @@ namespace Microsoft.Build.Evaluation
                     lazyEvaluator._loggingContext.BuildEventContext,
                     lazyEvaluator.FileSystem
                     );
+                MSBuildEventSource.Log.EvaluateConditionStop(condition);
 
                 return result;
             }
